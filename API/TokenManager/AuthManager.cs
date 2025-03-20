@@ -9,9 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.TokenManager;
 
-public class AuthManager(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) : IAuthManager
+public class AuthManager(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration) : IAuthManager
 {
-  private readonly UserManager<IdentityUser> _userManager = userManager;
+  private readonly UserManager<ApplicationUser> _userManager = userManager;
   private readonly RoleManager<IdentityRole> _roleManager = roleManager;
   private readonly IConfiguration _configuration = configuration;
 
@@ -69,7 +69,7 @@ public class AuthManager(UserManager<IdentityUser> userManager, RoleManager<Iden
       UserName = model.Username
     };
 
-    var result = await _userManager.CreateAsync(user, model.Password);
+    var result = await _userManager.CreateAsync((ApplicationUser)user, model.Password);
     if (!result.Succeeded)
       return new StatusCodeResult(StatusCodes.Status500InternalServerError);
 
@@ -91,7 +91,7 @@ public class AuthManager(UserManager<IdentityUser> userManager, RoleManager<Iden
       UserName = model.Username
     };
 
-    var result = await _userManager.CreateAsync(user, model.Password);
+    var result = await _userManager.CreateAsync((ApplicationUser)user, model.Password);
     if (!result.Succeeded)
       return new StatusCodeResult(StatusCodes.Status500InternalServerError);
 
@@ -102,10 +102,10 @@ public class AuthManager(UserManager<IdentityUser> userManager, RoleManager<Iden
       await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
     if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
-      await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+      await _userManager.AddToRoleAsync((ApplicationUser)user, UserRoles.Admin);
 
     if (await _roleManager.RoleExistsAsync(UserRoles.User))
-      await _userManager.AddToRoleAsync(user, UserRoles.User);
+      await _userManager.AddToRoleAsync((ApplicationUser)user, UserRoles.User);
 
     return new OkObjectResult(new Response { Status = "Success", Message = "Admin user created successfully!" });
   }

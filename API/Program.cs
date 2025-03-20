@@ -1,5 +1,6 @@
 using System.Text;
 using API.Data;
+using API.Model;
 using API.TokenManager;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -20,7 +21,7 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 });
 
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 // Adding Authentication
@@ -52,7 +53,12 @@ builder.Services.AddAuthentication(options =>
         },
         OnTokenValidated = context =>
         {
-            Console.WriteLine("Token validated successfully.");
+            Console.WriteLine($"Token validated for user: {context.Principal.Identity.Name}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Console.WriteLine("Authentication challenge triggered.");
             return Task.CompletedTask;
         }
     };
